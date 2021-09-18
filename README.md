@@ -1,6 +1,8 @@
 OpenWRT Config DHCP
 =========
 
+[![Role](https://img.shields.io/ansible/role/56272.svg)](https://galaxy.ansible.com/pe_pe/openwrt_config_dhcp/)
+[![Quality](https://img.shields.io/ansible/quality/56272.svg)](https://galaxy.ansible.com/pe_pe/openwrt_config_dhcp/)
 [![CI](https://github.com/pe-pe/ansible_role_openwrt_config_dhcp/workflows/CI/badge.svg)](https://github.com/pe-pe/ansible_role_openwrt_config_dhcp/actions)
 
 Ansible role that configures dhcp settings of OpenWRT device (mainly those which are usually defined in `/etc/config/dhcp`).
