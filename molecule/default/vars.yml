@@ -1,0 +1,8 @@
+---
+openwrt_install_recommended_packages: false
+
+openwrt_config_dhcp:
+  interfaces:
+    test: { interface: test, ignore: 0, leasetime: 6h, start: 50, limit: 100, dhcp_option: ["3,192.168.255.255"] }
+  hosts:
+    moon: { dns: 1, mac: "aa:bb:cc:dd:ee:ff", ip: 192.168.255.200 }

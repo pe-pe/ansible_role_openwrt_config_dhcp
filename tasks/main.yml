@@ -1,0 +1,49 @@
+---
+# Variables used in tasks:
+# - openwrt_config_dhcp (dict)
+
+- name: Revert pending UCI changes
+  uci:
+    command: revert
+    key: dhcp
+  when:
+    - openwrt_config_dhcp is defined
+
+- name: Configure interfaces sections
+  uci:
+    command: section
+    key: "dhcp.{{ item.key }}"
+    type: dhcp
+    value:
+      interface: "{{ item.value.interface }}"
+      ignore: "{{ item.value.ignore | default () }}"
+      leasetime: "{{ item.value.leasetime | default ('12h') }}"
+      start: "{{ item.value.start | default ('100') }}"
+      limit: "{{ item.value.limit | default ('150') }}"
+      dhcp_option: "{{ item.value.dhcp_option | default ([]) }}"
+  with_dict: "{{ openwrt_config_dhcp.interfaces }}"
+  when:
+    - openwrt_config_dhcp.interfaces is defined
+
+- name: Configure hosts
+  uci:
+    command: section
+    config: dhcp
+    type: host
+    find_by:
+      name: "{{ item.key }}"
+    value:
+      dns: "{{ item.value.dns | default(1) }}"
+      name: "{{ item.key }}"
+      mac: "{{ item.value.mac }}"
+      ip: "{{ item.value.ip }}"
+  with_dict: "{{ openwrt_config_dhcp.hosts }}"
+  when:
+    - openwrt_config_dhcp.hosts is defined
+
+- name: Commit UCI changes done
+  uci:
+    command: commit
+  notify: Restart dnsmasq
+  when:
+    - openwrt_config_dhcp is defined

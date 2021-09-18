@@ -1,0 +1,42 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: false
+  vars_files:
+    - vars.yml
+
+  roles:
+    - role: ansible_role_openwrt
+
+  tasks:
+    # dhcp config test
+    - name: Check whether dhcp test interface configuration was set
+      command: "uci show dhcp"
+      register: uci_show_dhcp_result
+      failed_when:
+        - not "test.interface='" ~ openwrt_config_dhcp.interfaces.test.interface ~ "'" in uci_show_dhcp_result.stdout or
+          not "test.ignore='" ~ openwrt_config_dhcp.interfaces.test.ignore ~ "'" in uci_show_dhcp_result.stdout or
+          not "test.leasetime='" ~ openwrt_config_dhcp.interfaces.test.leasetime ~ "'" in uci_show_dhcp_result.stdout or
+          not "test.start='" ~ openwrt_config_dhcp.interfaces.test.start ~ "'" in uci_show_dhcp_result.stdout or
+          not "test.limit='" ~ openwrt_config_dhcp.interfaces.test.limit ~ "'" in uci_show_dhcp_result.stdout or
+          not "test.dhcp_option='" ~ openwrt_config_dhcp.interfaces.test.dhcp_option[0] ~ "'" in uci_show_dhcp_result.stdout
+      changed_when: false
+
+    - name: Get dhcp configuration for test host (moon)
+      uci:
+        command: find
+        key: dhcp
+        type: host
+        find_by:
+          name: moon
+      register: uci_dhcp_moon_host
+
+    - name: Check whether dhcp host configuration was set
+      command: "uci show dhcp.{{ uci_dhcp_moon_host.section }}"
+      register: uci_show_dhcp_host_result
+      failed_when:
+        - not ".name='moon'" in uci_show_dhcp_host_result.stdout or
+          not ".dns='" ~ openwrt_config_dhcp.hosts.moon.dns ~ "'" in uci_show_dhcp_host_result.stdout or
+          not ".mac='" ~ openwrt_config_dhcp.hosts.moon.mac ~ "'" in uci_show_dhcp_host_result.stdout or
+          not ".ip='" ~ openwrt_config_dhcp.hosts.moon.ip ~ "'" in uci_show_dhcp_host_result.stdout
+      changed_when: false
